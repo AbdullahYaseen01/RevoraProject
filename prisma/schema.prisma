@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PROPERTY_SEEKER
+  CASH_BUYER
+  AFFILIATE
+  ADMIN
+}
+
+enum SubscriptionTier {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum ContactStatus {
+  PENDING
+  CONTACTED
+  RESPONDED
+  CLOSED
+  FAILED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  phone             String?
+  password          String?
+  role              UserRole          @default(PROPERTY_SEEKER)
+  subscriptionTier  SubscriptionTier  @default(STARTER)
+  isEmailVerified   Boolean           @default(false)
+  isPhoneVerified   Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  profile           UserProfile?
+  cashBuyerProfile  CashBuyerProfile?
+  subscription      Subscription?
+  searches          Search[]
+  contacts          Contact[]
+  affiliateProfile  AffiliateProfile?
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  legalName         String?
+  businessEntity    String?
+  companyName       String?
+  mailingAddress    String?
+  marketsOfInterest String[]
+  contactPreferences String[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model CashBuyerProfile {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  investmentCriteria    Json               // Price range, property types, etc.
+  verificationStatus    VerificationStatus @default(PENDING)
+  proofOfFundsVerified  Boolean            @default(false)
+  verifiedAmountRange   String?            // e.g., "$100k-$250k"
+  dealHistory           Json?              // Purchase history
+  kycVerified           Boolean            @default(false)
+  entityVerified        Boolean            @default(false)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  // Relations
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cash_buyer_profiles")
+}
+
+model Property {
+  id                String   @id @default(cuid())
+  rentcastId        String   @unique
+  address           String
+  city              String
+  state             String
+  zipCode           String
+  latitude          Float?
+  longitude         Float?
+  beds              Int?
+  baths             Float?
+  squareFeet        Int?
+  lotSize           Float?
+  yearBuilt         Int?
+  lastSalePrice     Float?
+  lastSaleDate      DateTime?
+  propertyType      String?
+  status            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  images            PropertyImage[]
+  contacts          Contact[]
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String   @id @default(cuid())
+  propertyId  String
+  imageUrl    String
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model Search {
+  id          String   @id @default(cuid())
+  userId      String
+  searchParams Json    // Search filters and criteria
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("searches")
+}
+
+model Contact {
+  id          String        @id @default(cuid())
+  userId      String
+  propertyId  String
+  contactType String        // "owner", "cash_buyer"
+  status      ContactStatus @default(PENDING)
+  contactInfo Json          // Phone, email, etc.
+  cost        Float?        // For skip tracing costs
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model AffiliateProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  businessType    String
+  socialMedia     Json     // Instagram, TikTok, etc.
+  promoCode       String   @unique
+  referralLink    String   @unique
+  commissionRate  Float    @default(0.25) // 25%
+  totalEarnings   Float    @default(0)
+  isApproved      Boolean  @default(false)
+  bankAccountId   String?  // Stripe Connect account
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("affiliate_profiles")
+}
+
+model Subscription {
+  id                String           @id @default(cuid())
+  userId            String           @unique
+  stripeCustomerId  String?          @unique
+  stripeSubscriptionId String?       @unique
+  tier              SubscriptionTier
+  status            String           // active, canceled, past_due, etc.
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean         @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relations
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  userId            String
+  stripePaymentId   String   @unique
+  amount            Float
+  currency          String   @default("usd")
+  description       String?
+  status            String   // succeeded, failed, pending
+  createdAt         DateTime @default(now())
+
+  @@map("payments")
+}
