@@ -1,19 +1,37 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import GoogleProvider from "next-auth/providers/google"
+import GitHubProvider from "next-auth/providers/github"
+import DiscordProvider from "next-auth/providers/discord"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "./db"
 import bcrypt from "bcryptjs"
 import { UserRole } from "@prisma/client"
+import { sendVerificationEmail } from "./email"
 
 export const authOptions: NextAuthOptions = {
-  // Remove adapter for now - we'll add it back when needed
+  secret: process.env.NEXTAUTH_SECRET,
+  adapter: PrismaAdapter(prisma),
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+    DiscordProvider({
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       id: "credentials",
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        twoFactorCode: { label: "2FA Code", type: "text", optional: true }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -35,6 +53,11 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Check if account is locked
+        if (user.lockedUntil && user.lockedUntil > new Date()) {
+          throw new Error("Account is temporarily locked due to too many failed login attempts")
+        }
+
         if (!user.password) {
           return null
         }
@@ -45,8 +68,45 @@ export const authOptions: NextAuthOptions = {
         )
 
         if (!isPasswordValid) {
+          // Increment login attempts
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              loginAttempts: user.loginAttempts + 1,
+              lockedUntil: user.loginAttempts >= 4 ? new Date(Date.now() + 15 * 60 * 1000) : null // Lock for 15 minutes after 5 attempts
+            }
+          })
           return null
         }
+
+        // Check 2FA if enabled
+        if (user.twoFactorEnabled) {
+          if (!credentials.twoFactorCode) {
+            throw new Error("2FA_REQUIRED")
+          }
+          
+          const speakeasy = require('speakeasy')
+          const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret!,
+            encoding: 'base32',
+            token: credentials.twoFactorCode,
+            window: 2
+          })
+
+          if (!verified) {
+            return null
+          }
+        }
+
+        // Reset login attempts on successful login
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            loginAttempts: 0,
+            lockedUntil: null,
+            lastLoginAt: new Date()
+          }
+        })
 
         return {
           id: user.id,
@@ -58,16 +118,40 @@ export const authOptions: NextAuthOptions = {
           isEmailVerified: user.isEmailVerified,
           isPhoneVerified: user.isPhoneVerified,
           isCashBuyer: !!user.cashBuyerProfile,
-          isVerified: user.cashBuyerProfile?.verificationStatus === 'VERIFIED'
+          isVerified: user.cashBuyerProfile?.verificationStatus === 'VERIFIED',
+          twoFactorEnabled: user.twoFactorEnabled
         }
       }
     })
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      // Handle OAuth sign-ins
+      if (account?.provider !== "credentials") {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! }
+        })
+
+        if (!existingUser) {
+          // Create new user for OAuth
+          await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name,
+              emailVerified: new Date(),
+              isEmailVerified: true,
+              role: "PROPERTY_SEEKER"
+            }
+          })
+        }
+      }
+      return true
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = user.role
         token.subscriptionTier = user.subscriptionTier
@@ -76,6 +160,7 @@ export const authOptions: NextAuthOptions = {
         token.isPhoneVerified = user.isPhoneVerified
         token.isCashBuyer = user.isCashBuyer
         token.isVerified = user.isVerified
+        token.twoFactorEnabled = user.twoFactorEnabled
       }
       return token
     },
@@ -89,6 +174,7 @@ export const authOptions: NextAuthOptions = {
         session.user.isPhoneVerified = token.isPhoneVerified as boolean
         session.user.isCashBuyer = token.isCashBuyer as boolean
         session.user.isVerified = token.isVerified as boolean
+        session.user.twoFactorEnabled = token.twoFactorEnabled as boolean
       }
       return session
     },
@@ -96,5 +182,22 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     signUp: "/auth/signup",
+    error: "/auth/error",
   },
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      // Log successful sign-in
+      await prisma.loginAttempt.create({
+        data: {
+          email: user.email!,
+          ipAddress: "unknown", // You can get this from request headers
+          success: true,
+          reason: "successful_login"
+        }
+      })
+    },
+    async signOut({ session, token }) {
+      // Clean up session data if needed
+    }
+  }
 }

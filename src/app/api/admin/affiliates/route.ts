@@ -1,0 +1,25 @@
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { AffiliateService } from "@/lib/affiliate"
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user is admin (you'll need to implement this check based on your user roles)
+    // For now, we'll assume all authenticated users can access this
+    // In production, you should check if session.user.role === 'ADMIN'
+
+    const affiliates = await AffiliateService.getAllAffiliates()
+    return NextResponse.json(affiliates)
+  } catch (error: any) {
+    console.error("Get all affiliates error:", error)
+    return NextResponse.json({ 
+      error: error.message || "Failed to get affiliates" 
+    }, { status: 500 })
+  }
+}

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, Phone, User } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, Phone, User, Github, Chrome } from "lucide-react"
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -92,6 +92,28 @@ export default function SignUp() {
               sign in to your existing account
             </Link>
           </p>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg py-2 hover:bg-gray-50"
+            type="button"
+          >
+            <Chrome size={18} /> Continue with Google
+          </button>
+          <button
+            onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg py-2 hover:bg-gray-50"
+            type="button"
+          >
+            <Github size={18} /> Continue with GitHub
+          </button>
+          <div className="flex items-center gap-2 text-gray-400">
+            <span className="h-px flex-1 bg-gray-200" />
+            or continue with email
+            <span className="h-px flex-1 bg-gray-200" />
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

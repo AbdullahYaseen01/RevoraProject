@@ -1,6 +1,7 @@
 "use client"
 
 import { SessionProvider } from "next-auth/react"
+export const runtime = 'nodejs'
 import { ReactNode } from "react"
 
 interface Props {

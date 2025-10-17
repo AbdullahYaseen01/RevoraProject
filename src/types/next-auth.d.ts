@@ -14,6 +14,7 @@ declare module "next-auth" {
       isPhoneVerified: boolean
       isCashBuyer?: boolean
       isVerified?: boolean
+      twoFactorEnabled?: boolean
     }
   }
 
@@ -25,5 +26,19 @@ declare module "next-auth" {
     isPhoneVerified: boolean
     isCashBuyer?: boolean
     isVerified?: boolean
+    twoFactorEnabled?: boolean
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: UserRole
+    subscriptionTier: SubscriptionTier
+    phone?: string
+    isEmailVerified: boolean
+    isPhoneVerified: boolean
+    isCashBuyer?: boolean
+    isVerified?: boolean
+    twoFactorEnabled?: boolean
   }
 }
