@@ -1,0 +1,402 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PROPERTY_SEEKER
+  CASH_BUYER
+  AFFILIATE
+  ADMIN
+}
+
+enum SubscriptionTier {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum ContactStatus {
+  PENDING
+  CONTACTED
+  RESPONDED
+  CLOSED
+  FAILED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  emailVerified     DateTime?
+  phone             String?
+  password          String?
+  role              UserRole          @default(PROPERTY_SEEKER)
+  subscriptionTier  SubscriptionTier  @default(STARTER)
+  isEmailVerified   Boolean           @default(false)
+  isPhoneVerified   Boolean           @default(false)
+  twoFactorEnabled  Boolean           @default(false)
+  twoFactorSecret   String?
+  backupCodes       String[]          @default([])
+  lastLoginAt       DateTime?
+  loginAttempts     Int               @default(0)
+  lockedUntil       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  profile           UserProfile?
+  cashBuyerProfile  CashBuyerProfile?
+  subscription      Subscription?
+  searches          Search[]
+  contacts          Contact[]
+  affiliateProfile  AffiliateProfile?
+  referral          Referral? @relation("ReferredUser")
+  payments          Payment[]
+  paymentMethods    PaymentMethod[]
+  invoices          Invoice[]
+  accounts          Account[]
+  sessions          Session[]
+  verificationTokens VerificationToken[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  legalName         String?
+  businessEntity    String?
+  companyName       String?
+  mailingAddress    String?
+  marketsOfInterest String[]
+  contactPreferences String[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model CashBuyerProfile {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  investmentCriteria    Json               // Price range, property types, etc.
+  verificationStatus    VerificationStatus @default(PENDING)
+  proofOfFundsVerified  Boolean            @default(false)
+  verifiedAmountRange   String?            // e.g., "$100k-$250k"
+  dealHistory           Json?              // Purchase history
+  kycVerified           Boolean            @default(false)
+  entityVerified        Boolean            @default(false)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  // Relations
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cash_buyer_profiles")
+}
+
+model Property {
+  id                String   @id @default(cuid())
+  rentcastId        String   @unique
+  address           String
+  city              String
+  state             String
+  zipCode           String
+  latitude          Float?
+  longitude         Float?
+  beds              Int?
+  baths             Float?
+  squareFeet        Int?
+  lotSize           Float?
+  yearBuilt         Int?
+  lastSalePrice     Float?
+  lastSaleDate      DateTime?
+  propertyType      String?
+  status            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  images            PropertyImage[]
+  contacts          Contact[]
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String   @id @default(cuid())
+  propertyId  String
+  imageUrl    String
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model Search {
+  id          String   @id @default(cuid())
+  userId      String
+  searchParams Json    // Search filters and criteria
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("searches")
+}
+
+model Contact {
+  id          String        @id @default(cuid())
+  userId      String
+  propertyId  String
+  contactType String        // "owner", "cash_buyer"
+  status      ContactStatus @default(PENDING)
+  contactInfo Json          // Phone, email, etc.
+  cost        Float?        // For skip tracing costs
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model AffiliateProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  businessType    String
+  socialMedia     Json     // Instagram, TikTok, etc.
+  promoCode       String   @unique
+  referralLink    String   @unique
+  commissionRate  Float    @default(0.25) // 25%
+  totalEarnings   Float    @default(0)
+  isApproved      Boolean  @default(false)
+  bankAccountId   String?  // Stripe Connect account
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals       Referral[]
+  commissions     Commission[]
+
+  @@map("affiliate_profiles")
+}
+
+model Referral {
+  id              String   @id @default(cuid())
+  affiliateId     String
+  referredUserId  String   @unique
+  referralCode    String
+  status          String   @default("pending") // pending, converted, expired
+  conversionDate  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  affiliate       AffiliateProfile @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  referredUser    User             @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade)
+  commissions     Commission[]
+
+  @@map("referrals")
+}
+
+model Commission {
+  id              String   @id @default(cuid())
+  affiliateId     String
+  referralId      String?
+  subscriptionId  String?
+  amount          Float
+  rate            Float    @default(0.25) // 25%
+  status          String   @default("pending") // pending, paid, failed
+  paymentDate     DateTime?
+  stripePayoutId  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  affiliate       AffiliateProfile @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  referral        Referral?        @relation(fields: [referralId], references: [id], onDelete: SetNull)
+  subscription    Subscription?    @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@map("commissions")
+}
+
+model Subscription {
+  id                String           @id @default(cuid())
+  userId            String           @unique
+  stripeCustomerId  String?          @unique
+  stripeSubscriptionId String?       @unique
+  tier              SubscriptionTier
+  status            String           // active, canceled, past_due, etc.
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean         @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relations
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commissions       Commission[]
+  payments          Payment[]
+  invoices          Invoice[]
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  userId            String
+  stripePaymentId   String   @unique
+  stripePaymentIntentId String? @unique
+  amount            Float
+  currency          String   @default("usd")
+  description       String?
+  status            String   // succeeded, failed, pending, canceled, requires_action
+  paymentMethodId   String?
+  invoiceId         String?
+  subscriptionId    String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
+
+model PaymentMethod {
+  id                String   @id @default(cuid())
+  userId            String
+  stripePaymentMethodId String @unique
+  type              String   // card, bank_account, etc.
+  cardBrand         String?
+  cardLast4         String?
+  cardExpMonth      Int?
+  cardExpYear       Int?
+  isDefault         Boolean  @default(false)
+  billingAddress    Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_methods")
+}
+
+model Invoice {
+  id                String   @id @default(cuid())
+  userId            String
+  stripeInvoiceId   String   @unique
+  subscriptionId    String?
+  amount            Float
+  currency          String   @default("usd")
+  status            String   // draft, open, paid, void, uncollectible
+  hostedInvoiceUrl  String?
+  invoicePdf        String?
+  periodStart       DateTime?
+  periodEnd         DateTime?
+  dueDate           DateTime?
+  paidAt            DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@map("invoices")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  user       User?    @relation(fields: [identifier], references: [email])
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Email verification and password reset
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  type      String   // "email_verification" | "password_reset"
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
+}
+
+// Login attempts tracking
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ipAddress String
+  userAgent String?
+  success   Boolean
+  reason    String?  // "invalid_credentials" | "account_locked" | "2fa_required"
+  createdAt DateTime @default(now())
+
+  @@map("login_attempts")
+}

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_e8RQk2/**)",
+      "Bash(mkdir:*)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_c1fUET/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_ARAdxj/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_HQoBU5/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_vAHwCI/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_ANLSpQ/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_czS4Pr/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_tnAlD5/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_ngu0fT/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_a5ynEW/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_4ijGNF/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_GownmK/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_nfHwuK/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_Xqm1Os/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_oDcf8d/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_NAuWeh/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_qDz3oI/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_wkTHBV/**)",
+      "Read(//var/folders/ly/ys_d8s1s44v36j7jkbwsq1cw0000gp/T/TemporaryItems/NSIRD_screencaptureui_Lm01p3/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
