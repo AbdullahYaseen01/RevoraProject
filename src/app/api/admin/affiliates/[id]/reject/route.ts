@@ -5,7 +5,7 @@ import { AffiliateService } from "@/lib/affiliate"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,8 +16,8 @@ export async function POST(
     // Check if user is admin (you'll need to implement this check based on your user roles)
     // For now, we'll assume all authenticated users can access this
     // In production, you should check if session.user.role === 'ADMIN'
-
-    await AffiliateService.rejectAffiliate(params.id)
+    const { id } = await context.params
+    await AffiliateService.rejectAffiliate(id)
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error("Reject affiliate error:", error)

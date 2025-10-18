@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types/stripe';
 // POST /api/subscriptions/[id]/resume - Resume a canceled subscription
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,9 +21,10 @@ export async function POST(
     }
 
     // Verify subscription belongs to user
+    const { id } = await context.params;
     const existingSubscription = await db.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -49,7 +50,7 @@ export async function POST(
 
     // Update subscription in database
     const updatedSubscription = await db.subscription.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: resumedSubscription.status,
         cancelAtPeriodEnd: resumedSubscription.cancel_at_period_end

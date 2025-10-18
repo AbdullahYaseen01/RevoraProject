@@ -8,8 +8,8 @@ import { SubscriptionTier } from '@prisma/client';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
-    const headersList = headers();
-    const signature = headersList.get('stripe-signature');
+    const headersList = await headers();
+    const signature = (headersList as unknown as Headers).get('stripe-signature');
 
     if (!signature) {
       console.error('Missing Stripe signature');
@@ -402,6 +402,6 @@ async function handleCheckoutSessionCompleted(session: any) {
 
 // Helper function to get pricing plan by price ID
 async function getPricingPlanByPriceId(priceId: string) {
-  const { PRICING_PLANS } = await import('@/lib/stripe');
+  const { PRICING_PLANS } = await import('@/lib/pricing');
   return PRICING_PLANS.find(plan => plan.stripePriceId === priceId);
 }

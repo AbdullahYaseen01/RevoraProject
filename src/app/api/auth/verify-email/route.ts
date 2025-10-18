@@ -16,8 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Find the verification token
     const verification = await prisma.emailVerification.findUnique({
-      where: { token },
-      include: { user: true }
+      where: { token }
     })
 
     if (!verification || verification.used || verification.expires < new Date()) {
@@ -66,8 +65,7 @@ export async function GET(request: NextRequest) {
 
     // Find the verification token
     const verification = await prisma.emailVerification.findUnique({
-      where: { token },
-      include: { user: true }
+      where: { token }
     })
 
     if (!verification || verification.used || verification.expires < new Date()) {

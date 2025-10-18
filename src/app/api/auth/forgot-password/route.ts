@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendPasswordResetEmail, generateToken } from '@/lib/email'
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { generateToken, sendPasswordResetEmail } from '@/lib/email'
 import bcrypt from 'bcryptjs'
 
 // Start password reset - send email with token
@@ -65,56 +62,4 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email } = await request.json()
-
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      )
-    }
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { email }
-    })
-
-    if (!user) {
-      // Don't reveal if user exists or not for security
-      return NextResponse.json({
-        success: true,
-        message: 'If an account with that email exists, we sent a password reset link.'
-      })
-    }
-
-    // Generate reset token
-    const token = generateToken()
-    const expires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-
-    // Store reset token
-    await prisma.emailVerification.create({
-      data: {
-        email,
-        token,
-        expires,
-        type: 'password_reset'
-      }
-    })
-
-    // Send reset email
-    await sendPasswordResetEmail(email, token)
-
-    return NextResponse.json({
-      success: true,
-      message: 'If an account with that email exists, we sent a password reset link.'
-    })
-  } catch (error) {
-    console.error('Password reset error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
+// (Removed duplicate POST handler)

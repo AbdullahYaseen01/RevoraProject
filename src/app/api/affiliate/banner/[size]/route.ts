@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { size: string } }
+  context: { params: Promise<{ size: string }> }
 ) {
   try {
     const { searchParams } = new URL(req.url)
     const ref = searchParams.get('ref')
     
-    const size = params.size
+    const { size } = await context.params
     const [width, height] = size.split('x').map(Number)
     
     if (!width || !height) {

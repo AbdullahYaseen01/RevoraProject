@@ -12,12 +12,12 @@ export interface MapboxMarkerProps {
   color?: string
   size?: number
   draggable?: boolean
-  onDragStart?: (e: mapboxgl.MapMouseEvent) => void
-  onDrag?: (e: mapboxgl.MapMouseEvent) => void
-  onDragEnd?: (e: mapboxgl.MapMouseEvent) => void
-  onClick?: (e: mapboxgl.MapMouseEvent) => void
-  onMouseEnter?: (e: mapboxgl.MapMouseEvent) => void
-  onMouseLeave?: (e: mapboxgl.MapMouseEvent) => void
+  onDragStart?: (e: any) => void
+  onDrag?: (e: any) => void
+  onDragEnd?: (e: any) => void
+  onClick?: (e: any) => void
+  onMouseEnter?: (e: MouseEvent) => void
+  onMouseLeave?: (e: MouseEvent) => void
   children?: React.ReactNode
 }
 
@@ -105,11 +105,11 @@ export default function MapboxMarker({
     }
 
     if (onMouseEnter) {
-      markerElement.addEventListener('mouseenter', onMouseEnter)
+      markerElement.addEventListener('mouseenter', (e) => onMouseEnter(e))
     }
 
     if (onMouseLeave) {
-      markerElement.addEventListener('mouseleave', onMouseLeave)
+      markerElement.addEventListener('mouseleave', (e) => onMouseLeave(e))
     }
 
     if (draggable) {
@@ -176,13 +176,11 @@ export default function MapboxMarker({
   // Update popup content
   useEffect(() => {
     if (popupRef.current && popup) {
-      const popupElement = popupRef.current.getDOMContent()
-      if (popupElement) {
-        if (typeof popup === 'string') {
-          popupElement.innerHTML = popup
-        } else {
-          popupElement.innerHTML = '<div>Popup content</div>'
-        }
+      // Re-set content since mapboxgl.Popup doesn't expose getDOMContent in typings
+      if (typeof popup === 'string') {
+        popupRef.current.setDOMContent(Object.assign(document.createElement('div'), { innerHTML: popup }))
+      } else {
+        popupRef.current.setDOMContent(Object.assign(document.createElement('div'), { innerHTML: '<div>Popup content</div>' }))
       }
     }
   }, [popup])
@@ -194,7 +192,6 @@ export default function MapboxMarker({
 export interface MapboxIconMarkerProps extends Omit<MapboxMarkerProps, 'children'> {
   icon: string
   iconSize?: [number, number]
-  iconAnchor?: [number, number]
 }
 
 export function MapboxIconMarker({
@@ -202,7 +199,6 @@ export function MapboxIconMarker({
   coordinates,
   icon,
   iconSize = [25, 25],
-  iconAnchor = [12, 12],
   ...props
 }: MapboxIconMarkerProps) {
   const markerRef = useRef<mapboxgl.Marker | null>(null)
@@ -221,8 +217,7 @@ export function MapboxIconMarker({
     el.style.cursor = 'pointer'
 
     markerRef.current = new mapboxgl.Marker({
-      element: el,
-      anchor: iconAnchor
+      element: el
     })
       .setLngLat(coordinates)
       .addTo(map)
@@ -232,7 +227,7 @@ export function MapboxIconMarker({
         markerRef.current.remove()
       }
     }
-  }, [map, coordinates, icon, iconSize, iconAnchor])
+  }, [map, coordinates, icon, iconSize])
 
   return null
 }

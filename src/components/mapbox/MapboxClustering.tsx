@@ -130,7 +130,7 @@ export default function MapboxClustering({
 
           map.easeTo({
             center: (features[0].geometry as any).coordinates,
-            zoom: zoom
+            zoom: (zoom ?? undefined) as unknown as number | undefined
           })
         })
 
@@ -175,10 +175,6 @@ export default function MapboxClustering({
     return () => {
       map.off('click', clusterLayerId, handleClusterClick)
       map.off('click', unclusteredPointLayerId, handlePointClick)
-      map.off('mouseenter', clusterLayerId)
-      map.off('mouseleave', clusterLayerId)
-      map.off('mouseenter', unclusteredPointLayerId)
-      map.off('mouseleave', unclusteredPointLayerId)
     }
   }, [map, isLoaded, clusterRadius, clusterMaxZoom, clusterMinPoints, onClusterClick, onPointClick, points])
 

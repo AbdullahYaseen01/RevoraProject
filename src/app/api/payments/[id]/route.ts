@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types/stripe';
 // GET /api/payments/[id] - Get specific payment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,9 +20,10 @@ export async function GET(
       }, { status: 401 });
     }
 
+    const { id } = await context.params;
     const payment = await db.payment.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       },
       include: {
@@ -60,7 +61,7 @@ export async function GET(
 // POST /api/payments/[id]/confirm - Confirm payment intent
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -76,9 +77,10 @@ export async function POST(
     const { paymentMethodId } = body;
 
     // Get payment from database
+    const { id } = await context.params;
     const payment = await db.payment.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -105,7 +107,7 @@ export async function POST(
 
     // Update payment in database
     const updatedPayment = await db.payment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: confirmedPaymentIntent.status,
         paymentMethodId: paymentMethodId || payment.paymentMethodId,

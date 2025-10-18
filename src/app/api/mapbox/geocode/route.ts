@@ -14,8 +14,10 @@ export async function GET(req: NextRequest) {
     const proximity = searchParams.get("proximity")?.split(",").map(Number) as [number, number] | undefined
     const bbox = searchParams.get("bbox")?.split(",").map(Number) as [number, number, number, number] | undefined
     const types = searchParams.get("types")?.split(",")
-    const country = searchParams.get("country")
-    const language = searchParams.get("language") || "en"
+    const countryParam = searchParams.get("country")
+    const country = countryParam === null ? undefined : countryParam
+    const languageParam = searchParams.get("language")
+    const language = (languageParam === null ? undefined : languageParam) || "en"
 
     const results = await mapboxService.geocode(query, {
       limit,

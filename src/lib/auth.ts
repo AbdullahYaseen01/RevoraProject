@@ -114,13 +114,13 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           subscriptionTier: user.subscriptionTier,
           name: user.profile?.legalName || user.email,
-          phone: user.phone,
+          phone: user.phone ?? undefined,
           isEmailVerified: user.isEmailVerified,
           isPhoneVerified: user.isPhoneVerified,
           isCashBuyer: !!user.cashBuyerProfile,
           isVerified: user.cashBuyerProfile?.verificationStatus === 'VERIFIED',
           twoFactorEnabled: user.twoFactorEnabled
-        }
+        } as any
       }
     })
   ],
@@ -141,7 +141,6 @@ export const authOptions: NextAuthOptions = {
           await prisma.user.create({
             data: {
               email: user.email!,
-              name: user.name,
               emailVerified: new Date(),
               isEmailVerified: true,
               role: "PROPERTY_SEEKER"
@@ -181,7 +180,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
     error: "/auth/error",
   },
   events: {

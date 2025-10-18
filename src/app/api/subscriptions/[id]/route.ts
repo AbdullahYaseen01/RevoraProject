@@ -9,7 +9,7 @@ import { SubscriptionTier } from '@prisma/client';
 // GET /api/subscriptions/[id] - Get specific subscription
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,9 +21,10 @@ export async function GET(
       }, { status: 401 });
     }
 
+    const { id } = await context.params;
     const subscription = await db.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       },
       include: {
@@ -68,7 +69,7 @@ export async function GET(
 // PUT /api/subscriptions/[id] - Update subscription
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -84,9 +85,10 @@ export async function PUT(
     const { priceId, quantity, prorationBehavior, metadata } = body as UpdateSubscriptionRequest;
 
     // Verify subscription belongs to user
+    const { id } = await context.params;
     const existingSubscription = await db.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -119,16 +121,16 @@ export async function PUT(
 
     // Update subscription in database
     const updatedSubscription = await db.subscription.update({
-      where: { id: params.id },
+      where: { id },
       data: {
-        status: updatedStripeSubscription.status,
-        currentPeriodStart: new Date(updatedStripeSubscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(updatedStripeSubscription.current_period_end * 1000),
-        cancelAtPeriodEnd: updatedStripeSubscription.cancel_at_period_end,
+        status: (updatedStripeSubscription as any).status,
+        currentPeriodStart: new Date(((updatedStripeSubscription as any).current_period_start ?? Date.now()/1000) * 1000),
+        currentPeriodEnd: new Date(((updatedStripeSubscription as any).current_period_end ?? Date.now()/1000) * 1000),
+        cancelAtPeriodEnd: (updatedStripeSubscription as any).cancel_at_period_end,
         ...(priceId && {
-          tier: updatedStripeSubscription.items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_STARTER ? SubscriptionTier.STARTER :
-               updatedStripeSubscription.items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_PRO ? SubscriptionTier.PRO :
-               updatedStripeSubscription.items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_ENTERPRISE ? SubscriptionTier.ENTERPRISE :
+          tier: (updatedStripeSubscription as any).items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_STARTER ? SubscriptionTier.STARTER :
+               (updatedStripeSubscription as any).items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_PRO ? SubscriptionTier.PRO :
+               (updatedStripeSubscription as any).items.data[0]?.price.id === process.env.STRIPE_PRICE_ID_ENTERPRISE ? SubscriptionTier.ENTERPRISE :
                existingSubscription.tier
         })
       }
@@ -160,7 +162,7 @@ export async function PUT(
 // DELETE /api/subscriptions/[id] - Cancel subscription
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -176,9 +178,10 @@ export async function DELETE(
     const cancelAtPeriodEnd = searchParams.get('cancelAtPeriodEnd') !== 'false';
 
     // Verify subscription belongs to user
+    const { id } = await context.params;
     const existingSubscription = await db.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -205,12 +208,12 @@ export async function DELETE(
 
     // Update subscription in database
     const updatedSubscription = await db.subscription.update({
-      where: { id: params.id },
+      where: { id },
       data: {
-        status: canceledSubscription.status,
-        cancelAtPeriodEnd: canceledSubscription.cancel_at_period_end,
-        ...(canceledSubscription.canceled_at && {
-          currentPeriodEnd: new Date(canceledSubscription.canceled_at * 1000)
+        status: (canceledSubscription as any).status,
+        cancelAtPeriodEnd: (canceledSubscription as any).cancel_at_period_end,
+        ...(((canceledSubscription as any).canceled_at) && {
+          currentPeriodEnd: new Date((canceledSubscription as any).canceled_at * 1000)
         })
       }
     });

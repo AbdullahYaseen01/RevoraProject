@@ -134,6 +134,12 @@ export async function POST(request: NextRequest) {
 
     // Attach payment method to customer
     const stripe = (await import('@/lib/stripe')).default;
+    if (!stripe) {
+      return NextResponse.json<ApiResponse>({
+        success: false,
+        error: 'Stripe is not configured'
+      }, { status: 500 });
+    }
     const paymentMethod = await stripe.paymentMethods.attach(paymentMethodId, {
       customer: stripeCustomerId,
     });
@@ -153,6 +159,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Normalize Stripe address to JSON
+    const address = paymentMethod.billing_details.address
+      ? {
+          city: paymentMethod.billing_details.address.city ?? undefined,
+          country: paymentMethod.billing_details.address.country ?? undefined,
+          line1: paymentMethod.billing_details.address.line1 ?? undefined,
+          line2: paymentMethod.billing_details.address.line2 ?? undefined,
+          postal_code: paymentMethod.billing_details.address.postal_code ?? undefined,
+          state: paymentMethod.billing_details.address.state ?? undefined,
+        }
+      : undefined;
+
     // Save payment method to database
     const savedPaymentMethod = await db.paymentMethod.create({
       data: {
@@ -164,7 +182,7 @@ export async function POST(request: NextRequest) {
         cardExpMonth: paymentMethod.card?.exp_month,
         cardExpYear: paymentMethod.card?.exp_year,
         isDefault: setAsDefault,
-        billingAddress: paymentMethod.billing_details.address
+        billingAddress: address,
       }
     });
 

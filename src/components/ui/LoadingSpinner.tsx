@@ -5,9 +5,10 @@ import { motion } from 'framer-motion'
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'
   text?: string
+  className?: string
 }
 
-export default function LoadingSpinner({ size = 'md', text }: LoadingSpinnerProps) {
+export default function LoadingSpinner({ size = 'md', text, className }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
@@ -15,7 +16,7 @@ export default function LoadingSpinner({ size = 'md', text }: LoadingSpinnerProp
   }
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4">
+    <div className={`flex flex-col items-center justify-center space-y-4 ${className ?? ''}`}>
       <motion.div
         className={`${sizeClasses[size]} border-4 border-purple-200 border-t-purple-600 rounded-full`}
         animate={{ rotate: 360 }}

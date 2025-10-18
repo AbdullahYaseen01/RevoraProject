@@ -74,13 +74,10 @@ export default function MapboxPopup({
   // Update content
   useEffect(() => {
     if (popupRef.current) {
-      const popupElement = popupRef.current.getDOMContent()
-      if (popupElement) {
-        if (typeof content === 'string') {
-          popupElement.innerHTML = content
-        } else {
-          popupElement.innerHTML = '<div>Popup content</div>'
-        }
+      if (typeof content === 'string') {
+        popupRef.current.setDOMContent(Object.assign(document.createElement('div'), { innerHTML: content }))
+      } else {
+        popupRef.current.setDOMContent(Object.assign(document.createElement('div'), { innerHTML: '<div>Popup content</div>' }))
       }
     }
   }, [content])

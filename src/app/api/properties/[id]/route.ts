@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { getPropertyById } from "@/lib/rentcast"
 import { prisma } from "@/lib/db"
 
-type Params = { params: { id: string } }
+type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
-    const id = params.id
+    const { id } = await params
     const data = await getPropertyById(id)
     if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 })
 

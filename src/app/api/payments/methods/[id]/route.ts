@@ -7,7 +7,7 @@ import { ApiResponse } from '@/types/stripe';
 // DELETE /api/payments/methods/[id] - Remove payment method
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,9 +20,10 @@ export async function DELETE(
     }
 
     // Get payment method from database
+    const { id } = await context.params;
     const paymentMethod = await db.paymentMethod.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -36,11 +37,17 @@ export async function DELETE(
 
     // Detach payment method from Stripe customer
     const stripe = (await import('@/lib/stripe')).default;
+    if (!stripe) {
+      return NextResponse.json<ApiResponse>({
+        success: false,
+        error: 'Stripe is not configured'
+      }, { status: 500 });
+    }
     await stripe.paymentMethods.detach(paymentMethod.stripePaymentMethodId);
 
     // Remove payment method from database
     await db.paymentMethod.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json<ApiResponse>({
@@ -60,7 +67,7 @@ export async function DELETE(
 // PUT /api/payments/methods/[id] - Update payment method (set as default)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -76,9 +83,10 @@ export async function PUT(
     const { setAsDefault = false } = body;
 
     // Get payment method from database
+    const { id } = await context.params;
     const paymentMethod = await db.paymentMethod.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     });
@@ -100,18 +108,20 @@ export async function PUT(
       if (subscription?.stripeCustomerId) {
         // Set as default in Stripe
         const stripe = (await import('@/lib/stripe')).default;
-        await stripe.customers.update(subscription.stripeCustomerId, {
-          invoice_settings: {
-            default_payment_method: paymentMethod.stripePaymentMethodId,
-          },
-        });
+        if (stripe) {
+          await stripe.customers.update(subscription.stripeCustomerId, {
+            invoice_settings: {
+              default_payment_method: paymentMethod.stripePaymentMethodId,
+            },
+          });
+        }
       }
 
       // Update other payment methods to not be default
       await db.paymentMethod.updateMany({
         where: { 
           userId: session.user.id,
-          id: { not: params.id }
+          id: { not: id }
         },
         data: { isDefault: false }
       });
@@ -119,7 +129,7 @@ export async function PUT(
 
     // Update payment method in database
     const updatedPaymentMethod = await db.paymentMethod.update({
-      where: { id: params.id },
+      where: { id },
       data: { isDefault: setAsDefault }
     });
 

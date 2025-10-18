@@ -56,3 +56,19 @@ export function getRelativeTime(date: Date | string | number): string {
   }
   return rtf.format(0, 'seconds')
 }
+
+// Generate a short human-readable referral code
+export function generateReferralCode(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 8; i++) {
+    code += alphabet[Math.floor(Math.random() * alphabet.length)]
+  }
+  return code
+}
+
+// Generate a promo code prefix + random segment, e.g., REV-ABCD1234
+export function generatePromoCode(prefix: string = 'REV'): string {
+  const segment = Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)
+  return `${prefix}-${segment}`
+}
