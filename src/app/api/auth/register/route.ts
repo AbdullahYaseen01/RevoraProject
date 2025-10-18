@@ -16,6 +16,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check database connection
+    if (!prisma) {
+      console.error("Database connection not available")
+      return NextResponse.json(
+        { error: "Database connection failed" },
+        { status: 500 }
+      )
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -91,7 +100,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Registration error:", error)
 
+    // More detailed error logging
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code)
+      console.error("Prisma error message:", error.message)
+      
       if (error.code === "P2002") {
         return NextResponse.json(
           { error: "User with this email already exists" },
@@ -100,6 +113,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check for connection errors
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      console.error("Database initialization error:", error.message)
+      return NextResponse.json(
+        { error: "Database connection failed. Please try again later." },
+        { status: 500 }
+      )
+    }
+
+    // Generic error response with more details in logs
+    console.error("Full error object:", JSON.stringify(error, null, 2))
+    
     return NextResponse.json(
       { error: "An error occurred during registration" },
       { status: 500 }
