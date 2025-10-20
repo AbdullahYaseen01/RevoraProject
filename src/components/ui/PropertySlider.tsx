@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
+import Link from 'next/link'
 import { 
   MapPin, 
   Bed, 
@@ -221,9 +222,9 @@ export default function PropertySlider() {
                           <Star className="w-4 h-4 text-yellow-400 mr-1" />
                           <span className="text-sm font-medium text-gray-900">{property.rating}</span>
                         </div>
-                        <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105">
+                        <Link href={`/properties`} className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105">
                           View Details
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Star, Quote } from 'lucide-react'
-
+import Link from 'next/link'
 const testimonials = [
   {
     id: 1,
@@ -161,12 +161,12 @@ export default function TestimonialsSection() {
               Start your real estate investment journey today and become part of our growing community of successful investors.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105">
+              <Link href={"/auth/signup"} className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105">
                 Get Started Free
-              </button>
-              <button className="px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300">
+              </Link>
+              <Link href="/properties" className="px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300">
                 View All Testimonials
-              </button>
+              </Link>
             </div>
           </div>
         </motion.div>
