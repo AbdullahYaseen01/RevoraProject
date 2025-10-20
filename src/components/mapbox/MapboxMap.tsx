@@ -137,6 +137,7 @@ export default function MapboxMap({
         onMapLoad?.(mapInstance)
       })
 
+      //@ts-ignore
       mapInstance.on('error', (e) => {
         console.error('Mapbox error:', e)
         setError('Failed to load map. Please check your Mapbox configuration.')
