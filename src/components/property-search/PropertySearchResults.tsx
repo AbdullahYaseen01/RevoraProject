@@ -33,11 +33,13 @@ interface Pagination {
 }
 
 interface PropertySearchResultsProps {
-  properties: Property[]
-  pagination: Pagination
+  results?: Property[]
+  properties?: Property[]
+  pagination?: Pagination
   loading?: boolean
-  onPageChange: (page: number) => void
-  onSortChange: (sortBy: string, sortOrder: "asc" | "desc") => void
+  isLoading?: boolean
+  onPageChange?: (page: number) => void
+  onSortChange?: (sortBy: string, sortOrder: "asc" | "desc") => void
   currentSort?: { sortBy: string; sortOrder: "asc" | "desc" }
 }
 
@@ -52,14 +54,29 @@ const SORT_OPTIONS = [
 ]
 
 export default function PropertySearchResults({
+  results,
   properties,
   pagination,
   loading = false,
+  isLoading = false,
   onPageChange,
   onSortChange,
   currentSort = { sortBy: "lastSaleDate", sortOrder: "desc" }
 }: PropertySearchResultsProps) {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
+
+  // Use results prop if available, otherwise use properties prop
+  const propertiesList = results || properties || []
+  const isActuallyLoading = loading || isLoading
+  const defaultPagination: Pagination = {
+    page: 1,
+    limit: 20,
+    total: propertiesList.length,
+    totalPages: Math.ceil(propertiesList.length / 20),
+    hasNext: false,
+    hasPrev: false
+  }
+  const paginationData = pagination || defaultPagination
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -226,7 +243,7 @@ export default function PropertySearchResults({
     </div>
   )
 
-  if (loading) {
+  if (isActuallyLoading) {
     return (
       <div className="space-y-4">
         {[...Array(6)].map((_, i) => (
@@ -249,7 +266,7 @@ export default function PropertySearchResults({
     )
   }
 
-  if (properties.length === 0) {
+  if (propertiesList.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 text-6xl mb-4">🏠</div>
@@ -265,16 +282,16 @@ export default function PropertySearchResults({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center space-x-4">
           <h2 className="text-xl font-semibold text-gray-900">
-            {pagination.total.toLocaleString()} Properties Found
+            {paginationData.total.toLocaleString()} Properties Found
           </h2>
           <span className="text-sm text-gray-500">
-            Page {pagination.page} of {pagination.totalPages}
+            Page {paginationData.page} of {paginationData.totalPages}
           </span>
         </div>
         
         <div className="flex items-center space-x-4">
           {/* Export Results */}
-          <ExportResults properties={properties} loading={loading} />
+          <ExportResults properties={propertiesList} loading={isActuallyLoading} />
           
           {/* Sort Options */}
           <div className="flex items-center space-x-2">
@@ -331,7 +348,7 @@ export default function PropertySearchResults({
           ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           : "space-y-4"
       }>
-        {properties.map(property => (
+        {propertiesList.map(property => (
           viewMode === "grid" 
             ? <PropertyCard key={property.id} property={property} />
             : <PropertyListItem key={property.id} property={property} />
@@ -339,34 +356,34 @@ export default function PropertySearchResults({
       </div>
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
+      {paginationData.totalPages > 1 && (
         <div className="flex items-center justify-between border-t pt-6">
           <div className="text-sm text-gray-700">
-            Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-            {pagination.total.toLocaleString()} results
+            Showing {((paginationData.page - 1) * paginationData.limit) + 1} to{' '}
+            {Math.min(paginationData.page * paginationData.limit, paginationData.total)} of{' '}
+            {paginationData.total.toLocaleString()} results
           </div>
           
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => onPageChange(pagination.page - 1)}
-              disabled={!pagination.hasPrev}
+              onClick={() => onPageChange?.(paginationData.page - 1)}
+              disabled={!paginationData.hasPrev}
               className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
             
             <div className="flex space-x-1">
-              {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
-                const pageNum = Math.max(1, pagination.page - 2) + i
-                if (pageNum > pagination.totalPages) return null
+              {[...Array(Math.min(5, paginationData.totalPages))].map((_, i) => {
+                const pageNum = Math.max(1, paginationData.page - 2) + i
+                if (pageNum > paginationData.totalPages) return null
                 
                 return (
                   <button
                     key={pageNum}
-                    onClick={() => onPageChange(pageNum)}
+                    onClick={() => onPageChange?.(pageNum)}
                     className={`px-3 py-2 text-sm border rounded-md ${
-                      pageNum === pagination.page
+                      pageNum === paginationData.page
                         ? "bg-blue-600 text-white border-blue-600"
                         : "border-gray-300 hover:bg-gray-50"
                     }`}
@@ -378,8 +395,8 @@ export default function PropertySearchResults({
             </div>
             
             <button
-              onClick={() => onPageChange(pagination.page + 1)}
-              disabled={!pagination.hasNext}
+              onClick={() => onPageChange?.(paginationData.page + 1)}
+              disabled={!paginationData.hasNext}
               className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next

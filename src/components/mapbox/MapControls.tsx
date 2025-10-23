@@ -103,23 +103,23 @@ export default function MapControls({
   }
 
   return (
-    <div className={`map-controls ${className}`}>
+    <div className={`map-controls flex flex-wrap gap-2 ${className}`}>
       {/* Zoom Controls */}
       {showZoom && (
-        <div className="bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex">
           <button
             onClick={zoomIn}
-            className="block w-10 h-10 flex items-center justify-center hover:bg-gray-50 border-b border-gray-200"
+            className="w-10 h-10 flex items-center justify-center hover:bg-blue-50 border-r border-gray-200 transition-colors duration-200 group"
             title="Zoom in"
           >
-            <span className="text-lg font-bold text-gray-600">+</span>
+            <span className="text-lg font-bold text-gray-700 group-hover:text-blue-600">+</span>
           </button>
           <button
             onClick={zoomOut}
-            className="block w-10 h-10 flex items-center justify-center hover:bg-gray-50"
+            className="w-10 h-10 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group"
             title="Zoom out"
           >
-            <span className="text-lg font-bold text-gray-600">−</span>
+            <span className="text-lg font-bold text-gray-700 group-hover:text-blue-600">−</span>
           </button>
         </div>
       )}
@@ -128,10 +128,10 @@ export default function MapControls({
       {showCompass && (
         <button
           onClick={resetNorth}
-          className="w-10 h-10 bg-white rounded-md shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+          className="w-10 h-10 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group"
           title="Reset north"
         >
-          <span className="text-lg">🧭</span>
+          <span className="text-lg group-hover:scale-110 transition-transform duration-200">🧭</span>
         </button>
       )}
 
@@ -139,10 +139,10 @@ export default function MapControls({
       {showGeolocate && (
         <button
           onClick={getCurrentLocation}
-          className="w-10 h-10 bg-white rounded-md shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+          className="w-10 h-10 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group"
           title="Get current location"
         >
-          <span className="text-lg">📍</span>
+          <span className="text-lg group-hover:scale-110 transition-transform duration-200">📍</span>
         </button>
       )}
 
@@ -150,42 +150,42 @@ export default function MapControls({
       {showFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="w-10 h-10 bg-white rounded-md shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+          className="w-10 h-10 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group"
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
-          <span className="text-lg">{isFullscreen ? "⛶" : "⛶"}</span>
+          <span className="text-lg group-hover:scale-110 transition-transform duration-200">{isFullscreen ? "⛶" : "⛶"}</span>
         </button>
       )}
 
       {/* Draw Controls */}
       {showDraw && (
-        <div className="bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex">
           <button
             onClick={() => handleDrawModeChange(drawMode === 'point' ? null : 'point')}
-            className={`block w-10 h-10 flex items-center justify-center hover:bg-gray-50 border-b border-gray-200 ${
+            className={`w-10 h-10 flex items-center justify-center hover:bg-blue-50 border-r border-gray-200 transition-colors duration-200 group ${
               drawMode === 'point' ? 'bg-blue-50 text-blue-600' : ''
             }`}
             title="Draw point"
           >
-            <span className="text-sm">📍</span>
+            <span className="text-sm group-hover:scale-110 transition-transform duration-200">📍</span>
           </button>
           <button
             onClick={() => handleDrawModeChange(drawMode === 'line' ? null : 'line')}
-            className={`block w-10 h-10 flex items-center justify-center hover:bg-gray-50 border-b border-gray-200 ${
+            className={`w-10 h-10 flex items-center justify-center hover:bg-blue-50 border-r border-gray-200 transition-colors duration-200 group ${
               drawMode === 'line' ? 'bg-blue-50 text-blue-600' : ''
             }`}
             title="Draw line"
           >
-            <span className="text-sm">📏</span>
+            <span className="text-sm group-hover:scale-110 transition-transform duration-200">📏</span>
           </button>
           <button
             onClick={() => handleDrawModeChange(drawMode === 'polygon' ? null : 'polygon')}
-            className={`block w-10 h-10 flex items-center justify-center hover:bg-gray-50 ${
+            className={`w-10 h-10 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group ${
               drawMode === 'polygon' ? 'bg-blue-50 text-blue-600' : ''
             }`}
             title="Draw polygon"
           >
-            <span className="text-sm">⬟</span>
+            <span className="text-sm group-hover:scale-110 transition-transform duration-200">⬟</span>
           </button>
         </div>
       )}
@@ -194,21 +194,21 @@ export default function MapControls({
       {showMeasure && (
         <button
           onClick={handleMeasureToggle}
-          className={`w-10 h-10 rounded-md shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${
+          className={`w-10 h-10 rounded-lg shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200 group ${
             isMeasuring ? 'bg-blue-50 text-blue-600' : 'bg-white'
           }`}
           title="Measure distance/area"
         >
-          <span className="text-lg">📐</span>
+          <span className="text-lg group-hover:scale-110 transition-transform duration-200">📐</span>
         </button>
       )}
 
       {/* Measurement Display */}
       {isMeasuring && (measurement.distance || measurement.area) && (
-        <div className="bg-white rounded-md shadow-md border border-gray-300 p-3 min-w-32">
-          <div className="text-sm font-medium text-gray-900 mb-1">Measurement</div>
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 min-w-36">
+          <div className="text-sm font-semibold text-gray-900 mb-2">Measurement</div>
           {measurement.distance && (
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-600 mb-1">
               Distance: {measurement.distance.toFixed(2)} m
             </div>
           )}
@@ -250,10 +250,10 @@ export function LayerControl({ map, layers, onLayerToggle, className = '' }: Lay
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 bg-white rounded-md shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+        className="w-12 h-12 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 transition-colors duration-200"
         title="Layer control"
       >
-        <span className="text-lg">📋</span>
+        <span className="text-xl">📋</span>
       </button>
 
       {isOpen && (

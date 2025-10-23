@@ -27,7 +27,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Email support',
       'Standard property data'
     ],
-    stripePriceId: process.env.STRIPE_PRICE_ID_STARTER || 'price_starter_monthly',
+    stripePriceId: process.env.STRIPE_PRICE_ID_STARTER || 'price_1SLQ6aAlUUsvg0BGkQC3JNYZ',
     tier: SubscriptionTier.STARTER
   },
   {
@@ -45,7 +45,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Export capabilities',
       'API access'
     ],
-    stripePriceId: process.env.STRIPE_PRICE_ID_PRO || 'price_pro_monthly',
+    stripePriceId: process.env.STRIPE_PRICE_ID_PRO || 'price_1SLQ6aAlUUsvg0BGlmGgH1pl',
     tier: SubscriptionTier.PRO,
     popular: true
   },
@@ -64,7 +64,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Custom reporting',
       'White-label options'
     ],
-    stripePriceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || 'price_enterprise_monthly',
+    stripePriceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || 'price_1SLQ6bAlUUsvg0BGplnxTxbc',
     tier: SubscriptionTier.ENTERPRISE
   }
 ]

@@ -32,6 +32,27 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Ensure input fields have proper contrast */
+input[type="text"], 
+input[type="search"], 
+input[type="email"], 
+input[type="password"], 
+input[type="number"],
+textarea,
+select {
+  color: #1f2937 !important; /* gray-800 */
+  background-color: #ffffff !important;
+}
+
+input[type="text"]::placeholder, 
+input[type="search"]::placeholder, 
+input[type="email"]::placeholder, 
+input[type="password"]::placeholder, 
+input[type="number"]::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important; /* gray-500 */
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -48,6 +69,50 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, #7c3aed, #db2777);
+}
+
+/* Subscription form animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s ease-in-out infinite;
 }
 
 /* Smooth animations: avoid global transitions (can cause text blur) */

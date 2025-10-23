@@ -38,7 +38,7 @@ interface SearchFilters {
 }
 
 interface PropertySearchFiltersProps {
-  filters: SearchFilters
+  filters?: SearchFilters
   onFiltersChange: (filters: SearchFilters) => void
   onSearch: () => void
   loading?: boolean
@@ -64,7 +64,7 @@ const PROPERTY_STATUS = [
 ]
 
 export default function PropertySearchFilters({ 
-  filters, 
+  filters = {}, 
   onFiltersChange, 
   onSearch, 
   loading = false 
@@ -73,10 +73,6 @@ export default function PropertySearchFilters({
 
   const updateFilter = (key: keyof SearchFilters, value: any) => {
     onFiltersChange({ ...filters, [key]: value })
-  }
-
-  const clearFilters = () => {
-    onFiltersChange({})
   }
 
   const formatCurrency = (value: number) => {
@@ -89,174 +85,180 @@ export default function PropertySearchFilters({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Property Search</h2>
-        <div className="flex gap-2">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 mb-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Property Search</h2>
+          <p className="text-gray-600">Find your perfect property with our advanced search filters</p>
+        </div>
+        <div className="flex justify-end">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            {showAdvanced ? "Hide Advanced" : "Show Advanced"}
-          </button>
-          <button
-            onClick={clearFilters}
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            Clear All
+            {showAdvanced ? "Hide Advanced Filters" : "Show Advanced Filters"}
           </button>
         </div>
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); onSearch() }} className="space-y-4">
+      <form onSubmit={(e) => { e.preventDefault(); onSearch() }} className="space-y-8">
         {/* Location Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address
-            </label>
-            <input
-              type="text"
-              value={filters.address || ""}
-              onChange={(e) => updateFilter("address", e.target.value)}
-              placeholder="123 Main St"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <input
-              type="text"
-              value={filters.city || ""}
-              onChange={(e) => updateFilter("city", e.target.value)}
-              placeholder="San Francisco"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              State
-            </label>
-            <input
-              type="text"
-              value={filters.state || ""}
-              onChange={(e) => updateFilter("state", e.target.value)}
-              placeholder="CA"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ZIP Code
-            </label>
-            <input
-              type="text"
-              value={filters.zipCode || ""}
-              onChange={(e) => updateFilter("zipCode", e.target.value)}
-              placeholder="94102"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Basic Property Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Min Bedrooms
-            </label>
-            <select
-              value={filters.bedsMin || ""}
-              onChange={(e) => updateFilter("bedsMin", e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Any</option>
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <option key={num} value={num}>{num}+</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Max Bedrooms
-            </label>
-            <select
-              value={filters.bedsMax || ""}
-              onChange={(e) => updateFilter("bedsMax", e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Any</option>
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <option key={num} value={num}>{num}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Min Bathrooms
-            </label>
-            <select
-              value={filters.bathsMin || ""}
-              onChange={(e) => updateFilter("bathsMin", e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Any</option>
-              {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
-                <option key={num} value={num}>{num}+</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Max Bathrooms
-            </label>
-            <select
-              value={filters.bathsMax || ""}
-              onChange={(e) => updateFilter("bathsMax", e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Any</option>
-              {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
-                <option key={num} value={num}>{num}</option>
-              ))}
-            </select>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Location</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <input
+                type="text"
+                value={filters.address || ""}
+                onChange={(e) => updateFilter("address", e.target.value)}
+                placeholder="123 Main St"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <input
+                type="text"
+                value={filters.city || ""}
+                onChange={(e) => updateFilter("city", e.target.value)}
+                placeholder="San Francisco"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                State
+              </label>
+              <input
+                type="text"
+                value={filters.state || ""}
+                onChange={(e) => updateFilter("state", e.target.value)}
+                placeholder="CA"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                ZIP Code
+              </label>
+              <input
+                type="text"
+                value={filters.zipCode || ""}
+                onChange={(e) => updateFilter("zipCode", e.target.value)}
+                placeholder="94102"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Price Range */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Min Price
-            </label>
-            <input
-              type="number"
-              value={filters.priceMin || ""}
-              onChange={(e) => updateFilter("priceMin", e.target.value ? Number(e.target.value) : undefined)}
-              placeholder="100000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        {/* Property Details Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Property Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Min Bedrooms
+              </label>
+              <select
+                value={filters.bedsMin || ""}
+                onChange={(e) => updateFilter("bedsMin", e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              >
+                <option value="">Any</option>
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <option key={num} value={num}>{num}+</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Max Bedrooms
+              </label>
+              <select
+                value={filters.bedsMax || ""}
+                onChange={(e) => updateFilter("bedsMax", e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              >
+                <option value="">Any</option>
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Min Bathrooms
+              </label>
+              <select
+                value={filters.bathsMin || ""}
+                onChange={(e) => updateFilter("bathsMin", e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              >
+                <option value="">Any</option>
+                {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
+                  <option key={num} value={num}>{num}+</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Max Bathrooms
+              </label>
+              <select
+                value={filters.bathsMax || ""}
+                onChange={(e) => updateFilter("bathsMax", e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              >
+                <option value="">Any</option>
+                {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Max Price
-            </label>
-            <input
-              type="number"
-              value={filters.priceMax || ""}
-              onChange={(e) => updateFilter("priceMax", e.target.value ? Number(e.target.value) : undefined)}
-              placeholder="1000000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        </div>
+
+        {/* Price Range Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Price Range</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Min Price
+              </label>
+              <input
+                type="number"
+                value={filters.priceMin || ""}
+                onChange={(e) => updateFilter("priceMin", e.target.value ? Number(e.target.value) : undefined)}
+                placeholder="100000"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Max Price
+              </label>
+              <input
+                type="number"
+                value={filters.priceMax || ""}
+                onChange={(e) => updateFilter("priceMax", e.target.value ? Number(e.target.value) : undefined)}
+                placeholder="1000000"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              />
+            </div>
           </div>
         </div>
 
@@ -427,13 +429,20 @@ export default function PropertySearchFilters({
         )}
 
         {/* Search Button */}
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center pt-6 border-t border-gray-200">
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-12 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            {loading ? "Searching..." : "Search Properties"}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Searching...
+              </span>
+            ) : (
+              "Search Properties"
+            )}
           </button>
         </div>
       </form>

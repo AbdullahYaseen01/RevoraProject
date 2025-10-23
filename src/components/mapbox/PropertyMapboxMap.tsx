@@ -30,7 +30,7 @@ export interface Property {
 }
 
 export interface PropertyMapboxMapProps {
-  properties: Property[]
+  properties?: Property[]
   center?: [number, number]
   zoom?: number
   className?: string
@@ -47,7 +47,7 @@ export interface PropertyMapboxMapProps {
 }
 
 export default function PropertyMapboxMap({
-  properties,
+  properties = [],
   center = [-122.4194, 37.7749],
   zoom = 10,
   className = '',
@@ -75,7 +75,7 @@ export default function PropertyMapboxMap({
   ])
 
   // Convert properties to cluster points
-  const clusterPoints: ClusterPoint[] = properties
+  const clusterPoints: ClusterPoint[] = (properties || [])
     .filter(p => p.latitude && p.longitude)
     .map(p => ({
       id: p.id,
@@ -271,20 +271,6 @@ export default function PropertyMapboxMap({
         </div>
       )}
 
-      {/* Map Controls */}
-      {showControls && (
-        <div className="absolute bottom-4 right-4 z-10 space-y-2">
-          <MapControls
-            map={map}
-            onDrawModeChange={handleDrawModeChange}
-          />
-          <LayerControl
-            map={map}
-            layers={layers}
-            onLayerToggle={handleLayerToggle}
-          />
-        </div>
-      )}
 
       {/* Coordinate Display */}
       {showCoordinateDisplay && (
@@ -312,8 +298,8 @@ export default function PropertyMapboxMap({
 
       {/* Properties Count */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-        <div className="bg-white rounded-md shadow-md border border-gray-300 px-3 py-2">
-          <span className="text-sm font-medium text-gray-700">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3">
+          <span className="text-sm font-semibold text-gray-900">
             {properties.length} Properties
           </span>
         </div>

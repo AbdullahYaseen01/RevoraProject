@@ -50,86 +50,86 @@ export function CheckoutForm({ plan, onSuccess, onCancel }: CheckoutFormProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white rounded-lg p-6 shadow-lg">
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="border-red-200 bg-red-50">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
         </Alert>
       )}
 
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Complete Your Subscription</h3>
-          <p className="text-sm text-gray-600">
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Subscription</h2>
+          <p className="text-base text-gray-700 font-medium">
             You'll be redirected to Stripe's secure checkout page
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{plan.name} Plan</CardTitle>
-            <CardDescription>{plan.description}</CardDescription>
+        <Card className="border-2 border-gray-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <CardTitle className="text-xl font-bold text-gray-900">{plan.name} Plan</CardTitle>
+            <CardDescription className="text-base text-gray-700 font-medium">{plan.description}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Price</span>
-                <span className="text-xl font-bold">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+                <span className="text-lg font-semibold text-gray-900">Price</span>
+                <span className="text-3xl font-bold text-blue-600">
                   ${plan.price}/{plan.interval}
                 </span>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-base text-gray-700 font-medium text-center">
                 Billed {plan.interval}ly • Cancel anytime
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="space-y-2">
-          <h4 className="font-medium">What's included:</h4>
-          <ul className="text-sm text-gray-600 space-y-1">
+        <div className="space-y-3">
+          <h4 className="text-lg font-bold text-gray-900">What's included:</h4>
+          <ul className="text-base text-gray-800 space-y-2">
             {plan.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">✓</span>
-                {feature}
+              <li key={index} className="flex items-start gap-3 bg-green-50 p-3 rounded-lg">
+                <span className="text-green-600 text-lg font-bold mt-0.5">✓</span>
+                <span className="font-medium">{feature}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4 pt-4">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
-          className="flex-1"
+          className="flex-1 h-12 text-base font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
         >
           Cancel
         </Button>
         <Button
           onClick={handleCheckout}
           disabled={isLoading}
-          className="flex-1"
+          className="flex-1 h-12 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
         >
           {isLoading ? (
             <>
-              <LoadingSpinner className="w-4 h-4 mr-2" />
+              <LoadingSpinner className="w-5 h-5 mr-2" />
               Processing...
             </>
           ) : (
             <>
-              <ExternalLink className="w-4 h-4 mr-2" />
+              <ExternalLink className="w-5 h-5 mr-2" />
               Continue to Checkout
             </>
           )}
         </Button>
       </div>
 
-      <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-        <Lock className="w-3 h-3" />
+      <div className="flex items-center justify-center gap-2 text-sm text-gray-600 font-medium bg-gray-50 p-3 rounded-lg">
+        <Lock className="w-4 h-4 text-blue-600" />
         <span>Secured by Stripe</span>
       </div>
     </div>

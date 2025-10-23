@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { GeocodingResult } from '@/lib/mapbox'
 
 export interface GeocodingSearchProps {
-  onResultSelect: (result: GeocodingResult) => void
+  onResultSelect?: (result: GeocodingResult) => void
   placeholder?: string
   className?: string
   limit?: number
@@ -114,7 +114,9 @@ export default function GeocodingSearch({
   }
 
   const handleResultSelect = (result: GeocodingResult) => {
-    onResultSelect(result)
+    if (onResultSelect) {
+      onResultSelect(result)
+    }
     setQuery(result.place_name)
     setIsOpen(false)
     setSelectedIndex(-1)
@@ -189,13 +191,13 @@ export default function GeocodingSearch({
           onBlur={handleInputBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full px-4 py-3 pl-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
         />
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           {isLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
           ) : (
-            <span className="text-gray-400">🔍</span>
+            <span className="text-gray-500 text-lg">🔍</span>
           )}
         </div>
       </div>
@@ -204,13 +206,13 @@ export default function GeocodingSearch({
       {isOpen && results.length > 0 && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto"
+          className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto"
         >
           {results.map((result, index) => (
             <button
               key={result.id}
               onClick={() => handleResultSelect(result)}
-              className={`w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none ${
+              className={`w-full text-left px-4 py-3 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-200 ${
                 index === selectedIndex ? 'bg-blue-50 border-l-4 border-blue-500' : ''
               }`}
             >
@@ -219,7 +221,7 @@ export default function GeocodingSearch({
                   {getResultIcon(result)}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">
+                  <div className="text-sm font-semibold text-gray-900 truncate">
                     {result.text}
                   </div>
                   <div className="text-xs text-gray-500 truncate">

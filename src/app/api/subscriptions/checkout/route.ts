@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
     // Create checkout session
     const checkoutSession = await StripeCheckoutService.createCheckoutSession(
       priceId,
-      stripeCustomerId,
       successUrl,
       cancelUrl,
+      stripeCustomerId,
       { userId: session.user.id }
     );
 

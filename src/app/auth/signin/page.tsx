@@ -11,6 +11,8 @@ export default function SignIn() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isGithubLoading, setIsGithubLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
 
@@ -44,6 +46,30 @@ export default function SignIn() {
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true)
+    setError("")
+    try {
+      await signIn('google', { callbackUrl: '/dashboard' })
+    } catch (error) {
+      setError("Failed to sign in with Google. Please try again.")
+    } finally {
+      setIsGoogleLoading(false)
+    }
+  }
+
+  const handleGithubSignIn = async () => {
+    setIsGithubLoading(true)
+    setError("")
+    try {
+      await signIn('github', { callbackUrl: '/dashboard' })
+    } catch (error) {
+      setError("Failed to sign in with GitHub. Please try again.")
+    } finally {
+      setIsGithubLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -67,22 +93,40 @@ export default function SignIn() {
 
         <div className="space-y-3">
           <button
-            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
-            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg py-2 hover:bg-gray-50"
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading || isGithubLoading || isLoading}
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
             type="button"
           >
-            <Chrome size={18} /> Continue with Google
+            {isGoogleLoading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+            ) : (
+              <Chrome size={20} className="text-blue-600" />
+            )}
+            <span className="text-gray-700 font-medium">
+              {isGoogleLoading ? "Signing in..." : "Continue with Google"}
+            </span>
           </button>
+          
           <button
-            onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
-            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg py-2 hover:bg-gray-50"
+            onClick={handleGithubSignIn}
+            disabled={isGoogleLoading || isGithubLoading || isLoading}
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
             type="button"
           >
-            <Github size={18} /> Continue with GitHub
+            {isGithubLoading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+            ) : (
+              <Github size={20} className="text-gray-800" />
+            )}
+            <span className="text-gray-700 font-medium">
+              {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
+            </span>
           </button>
+          
           <div className="flex items-center gap-2 text-gray-400">
             <span className="h-px flex-1 bg-gray-200" />
-            or continue with email
+            <span className="text-sm">or continue with email</span>
             <span className="h-px flex-1 bg-gray-200" />
           </div>
         </div>
