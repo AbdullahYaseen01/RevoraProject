@@ -63,7 +63,7 @@ export default async function CashBuyerDetails({ params }: { params: { id: strin
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Investment Criteria</h3>
               {buyer.cashBuyerProfile?.investmentCriteria ? (
                 <div className="space-y-2">
-                  <p><strong>Property Types:</strong> {buyer.cashBuyerProfile.investmentCriteria.propertyTypes?.join(', ') || 'Not specified'}</p>
+                  <p><strong>Property Types:</strong> {(buyer.cashBuyerProfile.investmentCriteria as any)?.propertyTypes?.join(', ') || 'Not specified'}</p>
                   <p><strong>Price Range:</strong> {buyer.cashBuyerProfile.verifiedAmountRange || 'Not specified'}</p>
                   <p><strong>Status:</strong> {buyer.cashBuyerProfile.verificationStatus || 'PENDING'}</p>
                 </div>

@@ -298,7 +298,7 @@ export default function PropertySearchResults({
             <label className="text-sm font-medium text-gray-700">Sort by:</label>
             <select
               value={currentSort.sortBy}
-              onChange={(e) => onSortChange(e.target.value, currentSort.sortOrder)}
+              onChange={(e) => onSortChange?.(e.target.value, currentSort.sortOrder)}
               className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {SORT_OPTIONS.map(option => (
@@ -308,7 +308,7 @@ export default function PropertySearchResults({
               ))}
             </select>
             <button
-              onClick={() => onSortChange(currentSort.sortBy, currentSort.sortOrder === "asc" ? "desc" : "asc")}
+              onClick={() => onSortChange?.(currentSort.sortBy, currentSort.sortOrder === "asc" ? "desc" : "asc")}
               className="p-1 text-gray-400 hover:text-gray-600"
               title={`Sort ${currentSort.sortOrder === "asc" ? "Descending" : "Ascending"}`}
             >

@@ -43,7 +43,7 @@ export default function PropertySearchPage() {
     sortOrder: 'asc' as const,
     page: 1,
     limit: 20
-  })
+  } as any)
 
   useEffect(() => {
     if (status === "loading") return
@@ -198,7 +198,7 @@ export default function PropertySearchPage() {
 
               {/* Quick Search */}
               <div className="mt-6">
-                <QuickSearch onSearch={handleSearch} />
+                <QuickSearch />
               </div>
 
               {/* Saved Searches */}

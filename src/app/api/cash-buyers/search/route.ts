@@ -45,19 +45,25 @@ export async function GET(req: NextRequest) {
     })
 
     // Transform the data to match the expected format
-    const transformedBuyers = buyers.map(buyer => ({
-      id: buyer.id,
-      name: buyer.profile?.legalName || buyer.profile?.companyName || 'Unknown',
-      email: buyer.email,
-      phone: buyer.phone || 'Not provided',
-      location: buyer.profile?.mailingAddress || 'Not specified',
-      investmentRange: buyer.cashBuyerProfile?.verifiedAmountRange || 'Not specified',
-      propertyTypes: buyer.cashBuyerProfile?.investmentCriteria?.propertyTypes || ['Residential'],
-      verificationStatus: buyer.cashBuyerProfile?.verificationStatus || 'PENDING',
-      dealHistory: buyer.cashBuyerProfile?.dealHistory?.length || 0,
-      lastActive: buyer.createdAt.toISOString(),
-      rating: 4.5 // Default rating since we don't have this field yet
-    }))
+    const transformedBuyers = buyers.map(buyer => {
+      // Type-safe access to investmentCriteria JSON field
+      const investmentCriteria = buyer.cashBuyerProfile?.investmentCriteria as any
+      const dealHistory = buyer.cashBuyerProfile?.dealHistory as any
+      
+      return {
+        id: buyer.id,
+        name: buyer.profile?.legalName || buyer.profile?.companyName || 'Unknown',
+        email: buyer.email,
+        phone: buyer.phone || 'Not provided',
+        location: buyer.profile?.mailingAddress || 'Not specified',
+        investmentRange: buyer.cashBuyerProfile?.verifiedAmountRange || 'Not specified',
+        propertyTypes: investmentCriteria?.propertyTypes || ['Residential'],
+        verificationStatus: buyer.cashBuyerProfile?.verificationStatus || 'PENDING',
+        dealHistory: Array.isArray(dealHistory) ? dealHistory.length : 0,
+        lastActive: buyer.createdAt.toISOString(),
+        rating: 4.5 // Default rating since we don't have this field yet
+      }
+    })
 
     return NextResponse.json({ 
       success: true, 

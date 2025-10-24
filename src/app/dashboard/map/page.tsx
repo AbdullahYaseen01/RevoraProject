@@ -17,7 +17,7 @@ export default function MapViewPage() {
   const router = useRouter()
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/light-v11')
   const [mapTheme, setMapTheme] = useState('default')
-  const [selectedProperties, setSelectedProperties] = useState([])
+  const [selectedProperties, setSelectedProperties] = useState<any[]>([])
   const [mapBounds, setMapBounds] = useState(null)
   const [properties] = useState([
     {
@@ -87,17 +87,12 @@ export default function MapViewPage() {
     setMapTheme(theme)
   }
 
-  const handleSearchLocation = async (query: string) => {
+  const handleSearchLocation = async (result: any) => {
     try {
-      const response = await fetch(`/api/mapbox/geocode?q=${encodeURIComponent(query)}&limit=1`)
-      const data = await response.json()
-      
-      if (data.success && data.data.features.length > 0) {
-        const feature = data.data.features[0]
-        const [lng, lat] = feature.center
-        
-        // You can update map center here if needed
-        console.log('Found location:', feature.place_name, 'at', lat, lng)
+      if (result && result.center) {
+        const [lng, lat] = result.center
+        console.log('Found location:', result.place_name, 'at', lat, lng)
+        // TODO: Implement map center update when dynamic map state is added
       }
     } catch (error) {
       console.error('Geocoding error:', error)
@@ -269,9 +264,6 @@ export default function MapViewPage() {
                       zoom={10}
                       onPropertyClick={(property) => {
                         setSelectedProperties(prev => [...prev, property])
-                      }}
-                      onMapLoad={(map) => {
-                        console.log('Map loaded successfully')
                       }}
                       showClustering={true}
                       showSearch={true}

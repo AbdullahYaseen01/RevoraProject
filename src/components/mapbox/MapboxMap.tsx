@@ -159,7 +159,7 @@ export default function MapboxMap({
         console.log('Map style loaded successfully')
       })
 
-      mapInstance.on('style.error', (e) => {
+      mapInstance.on('style.error', (e: any) => {
         console.error('Map style error:', e)
         if (e.error && e.error.status === 401) {
           setError('Invalid Mapbox API key. Please get a valid API key from https://account.mapbox.com/access-tokens/ and update your .env file.')
@@ -167,7 +167,7 @@ export default function MapboxMap({
       })
 
       //@ts-ignore
-      mapInstance.on('error', (e) => {
+      mapInstance.on('error', (e: any) => {
         console.error('Mapbox error:', e)
         
         // Check for 401 errors in different possible locations
