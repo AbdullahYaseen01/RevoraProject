@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { 
@@ -48,8 +49,52 @@ const socialLinks = [
 ]
 
 export default function Footer() {
+  const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleFooterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      setMessage('Please enter your email address')
+      setIsSuccess(false)
+      return
+    }
+
+    setIsLoading(true)
+    setMessage('')
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setIsSuccess(true)
+        setMessage('Thanks for Subscribe! Check your email for confirmation.')
+        setEmail('')
+      } else {
+        setIsSuccess(false)
+        setMessage(data.error || 'Something went wrong. Please try again.')
+      }
+    } catch (error) {
+      setIsSuccess(false)
+      setMessage('Network error. Please check your connection and try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -134,16 +179,64 @@ export default function Footer() {
             <p className="text-gray-300 mb-6">
               Get the latest real estate trends, investment opportunities, and platform updates delivered to your inbox.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            
+            <form onSubmit={handleFooterSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                disabled={isLoading}
+                required
               />
-              <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105">
-                Subscribe
+              <button 
+                type="submit"
+                disabled={isLoading || !email.trim()}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>Sending...</span>
+                  </div>
+                ) : (
+                  'Subscribe'
+                )}
               </button>
-            </div>
+            </form>
+
+            {/* Success/Error Message */}
+            {message && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mt-4 p-4 rounded-lg max-w-md mx-auto ${
+                  isSuccess 
+                    ? 'bg-green-50 text-green-800 border border-green-200' 
+                    : 'bg-red-50 text-red-800 border border-red-200'
+                }`}
+              >
+                <div className="flex items-center justify-center">
+                  {isSuccess ? (
+                    <div className="flex items-center">
+                      <div className="animate-bounce mr-3">
+                        <span className="text-green-600 text-2xl">🎉</span>
+                      </div>
+                      <div className="text-left">
+                        <div className="font-bold text-lg">Thanks for Subscribe!</div>
+                        <div className="text-sm opacity-90">Check your email for confirmation</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <span className="text-red-600 text-xl mr-3">⚠️</span>
+                      <span className="font-medium">{message}</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </div>
         </motion.div>
 
