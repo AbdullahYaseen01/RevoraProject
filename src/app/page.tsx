@@ -4,7 +4,7 @@ import PropertySlider from "@/components/ui/PropertySlider"
 import TestimonialsSection from "@/components/ui/TestimonialsSection"
 import CTASection from "@/components/ui/CTASection"
 import SubscriptionForm from "@/components/SubscriptionForm"
-
+// axasasxihais
 export default function Home() {
   return (
     <div className="min-h-screen">
