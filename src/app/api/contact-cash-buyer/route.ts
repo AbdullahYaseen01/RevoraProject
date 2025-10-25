@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   try {
-    const form = await req.formData()
-    const buyerId = String(form.get("buyerId") || "")
+    const body = await req.json()
+    const buyerId = String(body.buyerId || "")
     if (!buyerId) return NextResponse.json({ error: "Missing buyerId" }, { status: 400 })
 
     const info = await fakeSkiptraceByBuyer(buyerId)

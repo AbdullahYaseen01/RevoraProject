@@ -1,6 +1,183 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+@import 'mapbox-gl/dist/mapbox-gl.css';
+
+/* Performance optimizations for maps */
+.mapboxgl-map {
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Optimize repaints */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Optimize map controls */
+.mapboxgl-ctrl-group {
+  /* Hardware acceleration for controls */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Smooth transitions for map elements */
+.mapboxgl-popup {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.mapboxgl-marker {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Optimize search results */
+.map-search-results {
+  /* Hardware acceleration for smooth scrolling */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Performance optimizations for animations */
+@keyframes smoothSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: smoothSpin 1s linear infinite;
+  /* Use GPU acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Enhanced visibility and contrast improvements */
+.placeholder-gray-500::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Better contrast for form elements */
+input[type="text"], input[type="email"], input[type="search"], 
+select, textarea {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Enhanced badge visibility */
+.badge-outline {
+  background-color: #f9fafb !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+
+/* Better button contrast */
+.btn-primary {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Improved dropdown visibility */
+select option {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Enhanced text contrast for card content */
+.bg-gray-50 p {
+  color: #374151 !important; /* text-gray-700 */
+}
+
+.bg-gray-50 p strong {
+  color: #111827 !important; /* text-gray-900 */
+}
+
+.bg-gray-50 p span {
+  color: #374151 !important; /* text-gray-700 */
+}
+
+/* Ensure all text in cards is readable */
+.card-content p {
+  color: #374151 !important;
+}
+
+.card-content strong {
+  color: #111827 !important;
+}
+
+/* Enhanced property details page styling */
+.property-stat-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  transition: box-shadow 0.2s ease-in-out !important;
+}
+
+.property-stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.property-stat-label {
+  color: #6b7280 !important; /* text-gray-500 */
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.property-stat-value {
+  color: #111827 !important; /* text-gray-900 */
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+}
+
+/* Contact owner section styling */
+.contact-owner-section {
+  background-color: #eff6ff !important; /* bg-blue-50 */
+  border: 1px solid #bfdbfe !important; /* border-blue-200 */
+  border-radius: 0.5rem !important;
+  padding: 1.5rem !important;
+}
+
+.contact-owner-title {
+  color: #1e3a8a !important; /* text-blue-900 */
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.contact-owner-text {
+  color: #1e40af !important; /* text-blue-800 */
+}
+
+.contact-owner-button {
+  background-color: #2563eb !important; /* bg-blue-600 */
+  color: #ffffff !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+.contact-owner-button:hover {
+  background-color: #1d4ed8 !important; /* bg-blue-700 */
+}
 
 :root {
   --background: #ffffff;

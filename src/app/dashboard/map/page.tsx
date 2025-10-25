@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import DashboardNav from "@/components/dashboard/nav"
 import PropertyMapboxMap from "@/components/mapbox/PropertyMapboxMap"
+import CustomMapboxMap from "@/components/mapbox/CustomMapboxMap"
+import EnhancedMapboxMap from "@/components/mapbox/EnhancedMapboxMap"
+import OptimizedMapboxMap from "@/components/mapbox/OptimizedMapboxMap"
 import MapControls from "@/components/mapbox/MapControls"
 import MapStyleSelector from "@/components/mapbox/MapStyleSelector"
 import GeocodingSearch from "@/components/mapbox/GeocodingSearch"
@@ -245,8 +248,8 @@ export default function MapViewPage() {
             </div>
 
             {/* Map */}
-            <div className="lg:col-span-3">
-              <Card className="h-[600px] border-gray-200 shadow-lg">
+            <div className="lg:col-span-4">
+              <Card className="h-[800px] border-gray-200 shadow-lg">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-gray-900 text-lg font-semibold">
                     <Map className="w-5 h-5 text-blue-600" />
@@ -258,18 +261,7 @@ export default function MapViewPage() {
                 </CardHeader>
                 <CardContent className="p-0 h-full">
                   <div className="h-full w-full">
-                    <PropertyMapboxMap 
-                      properties={properties}
-                      center={[-122.4194, 37.7749]}
-                      zoom={10}
-                      onPropertyClick={(property) => {
-                        setSelectedProperties(prev => [...prev, property])
-                      }}
-                      showClustering={true}
-                      showSearch={true}
-                      showControls={true}
-                      showStyleSelector={true}
-                    />
+                    <OptimizedMapboxMap />
                   </div>
                 </CardContent>
               </Card>

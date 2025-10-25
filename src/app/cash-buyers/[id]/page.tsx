@@ -21,8 +21,9 @@ async function getBuyer(id: string) {
   }
 }
 
-export default async function CashBuyerDetails({ params }: { params: { id: string } }) {
-  const buyer = await getBuyer(params.id)
+export default async function CashBuyerDetails({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const buyer = await getBuyer(id)
   if (!buyer) return notFound()
   
   return (
@@ -43,9 +44,9 @@ export default async function CashBuyerDetails({ params }: { params: { id: strin
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
               <div className="space-y-2">
-                <p><strong>Email:</strong> {buyer.email}</p>
-                <p><strong>Phone:</strong> {buyer.phone || 'Not provided'}</p>
-                <p><strong>Member since:</strong> {new Date(buyer.createdAt).toLocaleDateString()}</p>
+                <p className="text-gray-800"><strong className="text-gray-900">Email:</strong> <span className="text-gray-700">{buyer.email}</span></p>
+                <p className="text-gray-800"><strong className="text-gray-900">Phone:</strong> <span className="text-gray-700">{buyer.phone || 'Not provided'}</span></p>
+                <p className="text-gray-800"><strong className="text-gray-900">Member since:</strong> <span className="text-gray-700">{new Date(buyer.createdAt).toLocaleDateString()}</span></p>
               </div>
               
               <form action="/api/contact-cash-buyer" method="post" className="mt-4">
@@ -63,12 +64,12 @@ export default async function CashBuyerDetails({ params }: { params: { id: strin
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Investment Criteria</h3>
               {buyer.cashBuyerProfile?.investmentCriteria ? (
                 <div className="space-y-2">
-                  <p><strong>Property Types:</strong> {(buyer.cashBuyerProfile.investmentCriteria as any)?.propertyTypes?.join(', ') || 'Not specified'}</p>
-                  <p><strong>Price Range:</strong> {buyer.cashBuyerProfile.verifiedAmountRange || 'Not specified'}</p>
-                  <p><strong>Status:</strong> {buyer.cashBuyerProfile.verificationStatus || 'PENDING'}</p>
+                  <p className="text-gray-800"><strong className="text-gray-900">Property Types:</strong> <span className="text-gray-700">{(buyer.cashBuyerProfile.investmentCriteria as any)?.propertyTypes?.join(', ') || 'Not specified'}</span></p>
+                  <p className="text-gray-800"><strong className="text-gray-900">Price Range:</strong> <span className="text-gray-700">{buyer.cashBuyerProfile.verifiedAmountRange || 'Not specified'}</span></p>
+                  <p className="text-gray-800"><strong className="text-gray-900">Status:</strong> <span className="text-gray-700">{buyer.cashBuyerProfile.verificationStatus || 'PENDING'}</span></p>
                 </div>
               ) : (
-                <p className="text-gray-600">No investment criteria specified</p>
+                <p className="text-gray-700">No investment criteria specified</p>
               )}
             </div>
           </div>

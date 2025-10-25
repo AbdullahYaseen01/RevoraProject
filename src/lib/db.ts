@@ -24,7 +24,7 @@ export const db = prisma;
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Neon serverless connection for direct SQL queries if needed
-export const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : undefined as unknown as ReturnType<typeof neon>;
+export const sql = process.env.DATABASE_URL?.startsWith('postgresql://') ? neon(process.env.DATABASE_URL) : undefined;
 
 // Test database connection
 export async function testDatabaseConnection() {

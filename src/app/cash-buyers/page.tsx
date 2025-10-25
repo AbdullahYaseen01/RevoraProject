@@ -108,7 +108,7 @@ export default function CashBuyersPage() {
                     <h3 className="text-lg font-semibold text-slate-900">{b.profile?.legalName || b.email}</h3>
                     <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
                       <MapPin className="w-4 h-4" />
-                      <span>{(b.profile?.marketsOfInterest||[]).slice(0,2).join(', ') || 'Any market'}</span>
+                      <span>{b.profile?.marketsOfInterest ? JSON.parse(b.profile.marketsOfInterest).slice(0,2).join(', ') : 'Any market'}</span>
                     </div>
                   </div>
                   <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${b.cashBuyerProfile?.verificationStatus === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>

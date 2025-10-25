@@ -36,17 +36,30 @@ function authHeaders() {
 }
 
 export async function searchProperties(params: SearchParams): Promise<RentcastProperty[]> {
-  const url = new URL(`${BASE_URL}/properties/search`)
+  const url = new URL(`${BASE_URL}/listings/sale`)
   if (params.city) url.searchParams.set("city", params.city)
   if (params.zipCode) url.searchParams.set("zip", params.zipCode)
   if (params.address) url.searchParams.set("address", params.address)
   if (params.bedsMin) url.searchParams.set("minBeds", String(params.bedsMin))
   if (params.bathsMin) url.searchParams.set("minBaths", String(params.bathsMin))
   if (params.squareFeetMin) url.searchParams.set("minSqft", String(params.squareFeetMin))
+  
+  // Add limit parameter
+  url.searchParams.set("limit", "50")
 
+  console.log('🔍 Rentcast API URL:', url.toString())
+  
   const res = await fetch(url.toString(), { headers: authHeaders(), cache: "no-store" })
-  if (!res.ok) throw new Error(`Rentcast search failed: ${res.status}`)
+  console.log('📊 Rentcast API Response Status:', res.status)
+  
+  if (!res.ok) {
+    const errorText = await res.text()
+    console.error('❌ Rentcast API Error:', res.status, errorText)
+    throw new Error(`Rentcast search failed: ${res.status} - ${errorText}`)
+  }
+  
   const data = await res.json()
+  console.log('✅ Rentcast API Success:', data)
   return (data as any[]).map(mapRentcast)
 }
 

@@ -43,6 +43,7 @@ export default function CashBuyersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [filterLocation, setFilterLocation] = useState('ALL')
+  const [contactingBuyer, setContactingBuyer] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === "loading") return
@@ -81,7 +82,10 @@ export default function CashBuyersPage() {
   }
 
   const handleContactBuyer = async (buyerId: string) => {
+    setContactingBuyer(buyerId)
     try {
+      console.log('🔍 Contacting buyer:', buyerId)
+      
       const response = await fetch('/api/contact-cash-buyer', {
         method: 'POST',
         headers: {
@@ -93,16 +97,38 @@ export default function CashBuyersPage() {
         }),
       })
       
+      console.log('📊 Contact response status:', response.status)
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('❌ Contact API error:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+      }
+      
       const data = await response.json()
+      console.log('✅ Contact success:', data)
       
       if (data.success) {
-        alert('Message sent to cash buyer successfully!')
+        // Show success notification instead of alert
+        const successDiv = document.createElement('div')
+        successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow z-50'
+        successDiv.textContent = '✅ Message sent to cash buyer successfully!'
+        document.body.appendChild(successDiv)
+        setTimeout(() => document.body.removeChild(successDiv), 3000)
       } else {
-        alert('Failed to send message')
+        throw new Error(data.error || 'Unknown error')
       }
     } catch (error) {
-      console.error('Error contacting buyer:', error)
-      alert('Failed to send message')
+      console.error('❌ Error contacting buyer:', error)
+      
+      // Show error notification instead of alert
+      const errorDiv = document.createElement('div')
+      errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow z-50'
+      errorDiv.textContent = `❌ Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`
+      document.body.appendChild(errorDiv)
+      setTimeout(() => document.body.removeChild(errorDiv), 5000)
+    } finally {
+      setContactingBuyer(null)
     }
   }
 
@@ -177,7 +203,7 @@ export default function CashBuyersPage() {
                       placeholder="Search by name, email, or location..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
                     />
                   </div>
                   <div>
@@ -187,7 +213,7 @@ export default function CashBuyersPage() {
                     <select
                       value={filterStatus}
                       onChange={(e) => setFilterStatus(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
                     >
                       <option value="ALL">All Status</option>
                       <option value="VERIFIED">Verified</option>
@@ -202,7 +228,7 @@ export default function CashBuyersPage() {
                     <select
                       value={filterLocation}
                       onChange={(e) => setFilterLocation(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
                     >
                       <option value="ALL">All Locations</option>
                       <option value="Atlanta">Atlanta</option>
@@ -279,10 +305,20 @@ export default function CashBuyersPage() {
                         <Button
                           size="sm"
                           onClick={() => handleContactBuyer(buyer.id)}
+                          disabled={contactingBuyer === buyer.id}
                           className="flex-1"
                         >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Contact
+                          {contactingBuyer === buyer.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Contact
+                            </>
+                          )}
                         </Button>
                         <Button
                           size="sm"

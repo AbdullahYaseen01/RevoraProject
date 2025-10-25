@@ -5,6 +5,9 @@ import PropertySearchFilters from "@/components/property-search/PropertySearchFi
 import PropertySearchResults from "@/components/property-search/PropertySearchResults"
 import SavedSearches from "@/components/property-search/SavedSearches"
 import PropertyMapboxMap from "@/components/mapbox/PropertyMapboxMap"
+import CustomMapboxMap from "@/components/mapbox/CustomMapboxMap"
+import EnhancedMapboxMap from "@/components/mapbox/EnhancedMapboxMap"
+import OptimizedMapboxMap from "@/components/mapbox/OptimizedMapboxMap"
 import MapboxStatus from "@/components/mapbox/MapboxStatus"
 import AnalyzeButton from "./AnalyzeButton"
 import DrawControl from "./DrawControl"
@@ -220,32 +223,20 @@ export default function PropertiesPage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Map Section */}
           {showMap && (
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-3">
               <div className="sticky top-8">
-                <div className="h-[600px] w-full relative bg-white rounded-lg shadow-md overflow-hidden">
-                  <PropertyMapboxMap
-                    properties={properties}
-                    center={center}
-                    zoom={12}
-                    onPropertyClick={handlePropertyClick}
-                    onMapClick={handleMapClick}
-                    showClustering={true}
-                    showSearch={true}
-                    showControls={true}
-                    showStyleSelector={true}
-                    showCoordinateDisplay={true}
-                    className="w-full h-full"
-                  />
+                <div className="h-[700px] w-full relative bg-white rounded-lg shadow-md overflow-hidden">
+                  <OptimizedMapboxMap />
                 </div>
               </div>
             </div>
           )}
 
           {/* Results Section */}
-          <div className={showMap ? "lg:col-span-2" : "lg:col-span-3"}>
+          <div className={showMap ? "lg:col-span-2" : "lg:col-span-5"}>
             <PropertySearchResults
               properties={properties}
               pagination={pagination}

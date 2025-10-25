@@ -282,7 +282,7 @@ export default function PropertySearchResults({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center space-x-4">
           <h2 className="text-xl font-semibold text-gray-900">
-            {paginationData.total.toLocaleString()} Properties Found
+            {paginationData.total >= 50 ? `${paginationData.total}+` : paginationData.total.toLocaleString()} Properties Found
           </h2>
           <span className="text-sm text-gray-500">
             Page {paginationData.page} of {paginationData.totalPages}
@@ -361,7 +361,7 @@ export default function PropertySearchResults({
           <div className="text-sm text-gray-700">
             Showing {((paginationData.page - 1) * paginationData.limit) + 1} to{' '}
             {Math.min(paginationData.page * paginationData.limit, paginationData.total)} of{' '}
-            {paginationData.total.toLocaleString()} results
+            {paginationData.total >= 50 ? `${paginationData.total}+` : paginationData.total.toLocaleString()} results
           </div>
           
           <div className="flex items-center space-x-2">

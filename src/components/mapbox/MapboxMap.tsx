@@ -90,9 +90,11 @@ export default function MapboxMap({
       mapboxgl.accessToken = MAPBOX_CONFIG.accessToken
       console.log('Mapbox access token set')
 
+      const container = mapContainer.current
+      
       map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style,
+        container: container,
+        style: style || 'mapbox://styles/mapbox/streets-v12',
         center: normalizedCenter,
         zoom,
         interactive,
@@ -107,7 +109,6 @@ export default function MapboxMap({
       })
       
       console.log('Mapbox map instance created:', map.current)
-
       const mapInstance = map.current
 
       // Check container dimensions
@@ -116,6 +117,10 @@ export default function MapboxMap({
       console.log('Container computed styles:', {
         width: window.getComputedStyle(mapContainer.current).width,
         height: window.getComputedStyle(mapContainer.current).height
+      })
+      console.log('Container offset dimensions:', {
+        offsetWidth: mapContainer.current.offsetWidth,
+        offsetHeight: mapContainer.current.offsetHeight
       })
 
       // Add controls
@@ -148,8 +153,16 @@ export default function MapboxMap({
       }
 
       // Event listeners
+      const loadTimeout = setTimeout(() => {
+        if (!isLoaded) {
+          console.error('Map failed to load within timeout period')
+          setError('Map failed to load. Please check your internet connection and Mapbox configuration.')
+        }
+      }, 10000) // 10 second timeout
+
       mapInstance.on('load', () => {
         console.log('Mapbox map loaded successfully!')
+        clearTimeout(loadTimeout)
         setIsLoaded(true)
         onMapLoad?.(mapInstance)
       })
@@ -196,6 +209,7 @@ export default function MapboxMap({
 
       // Cleanup
       return () => {
+        clearTimeout(loadTimeout)
         if (mapInstance) {
           mapInstance.remove()
         }
@@ -266,12 +280,13 @@ export default function MapboxMap({
 
   return (
     <div className={`relative ${className}`}>
-      <div ref={mapContainer} className="w-full h-full" />
+      <div ref={mapContainer} className="w-full h-full min-h-[400px]" style={{ minHeight: '400px' }} />
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
             <p className="text-gray-600">Loading map...</p>
+            <p className="text-xs text-gray-500 mt-2">Debug: Container dimensions will be logged to console</p>
           </div>
         </div>
       )}

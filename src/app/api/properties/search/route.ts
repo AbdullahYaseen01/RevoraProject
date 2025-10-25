@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc"
     
     // Search mode: 'rentcast' for external API, 'database' for local search
-    const searchMode = searchParams.get("searchMode") || "rentcast"
+    const searchMode = searchParams.get("searchMode") || "database"
 
     let results: any[] = []
     let totalCount = 0
@@ -57,12 +57,12 @@ export async function GET(req: NextRequest) {
       // Search in local database with advanced filtering
       const where: any = {}
       
-      if (city) where.city = { contains: city, mode: "insensitive" }
-      if (zipCode) where.zipCode = { contains: zipCode, mode: "insensitive" }
-      if (address) where.address = { contains: address, mode: "insensitive" }
-      if (state) where.state = { contains: state, mode: "insensitive" }
-      if (propertyType) where.propertyType = { contains: propertyType, mode: "insensitive" }
-      if (status) where.status = { contains: status, mode: "insensitive" }
+      if (city) where.city = { contains: city }
+      if (zipCode) where.zipCode = { contains: zipCode }
+      if (address) where.address = { contains: address }
+      if (state) where.state = { contains: state }
+      if (propertyType) where.propertyType = { contains: propertyType }
+      if (status) where.status = { contains: status }
       
       if (bedsMin !== undefined || bedsMax !== undefined) {
         where.beds = {}
@@ -288,34 +288,46 @@ export async function GET(req: NextRequest) {
     // Save search to user's search history if authenticated
     const session = await getServerSession(authOptions)
     if (session?.user?.id) {
-      await prisma.search.create({
-        data: {
-          userId: session.user.id,
-          searchParams: {
-            city,
-            zipCode,
-            address,
-            state,
-            bedsMin,
-            bedsMax,
-            bathsMin,
-            bathsMax,
-            squareFeetMin,
-            squareFeetMax,
-            priceMin,
-            priceMax,
-            propertyType,
-            status,
-            yearBuiltMin,
-            yearBuiltMax,
-            lotSizeMin,
-            lotSizeMax,
-            sortBy,
-            sortOrder,
-            searchMode
-          }
+      try {
+        // Check if user exists in database before creating search
+        const userExists = await prisma.user.findUnique({
+          where: { id: session.user.id }
+        })
+        
+        if (userExists) {
+          await prisma.search.create({
+            data: {
+              userId: session.user.id,
+              searchParams: {
+                city,
+                zipCode,
+                address,
+                state,
+                bedsMin,
+                bedsMax,
+                bathsMin,
+                bathsMax,
+                squareFeetMin,
+                squareFeetMax,
+                priceMin,
+                priceMax,
+                propertyType,
+                status,
+                yearBuiltMin,
+                yearBuiltMax,
+                lotSizeMin,
+                lotSizeMax,
+                sortBy,
+                sortOrder,
+                searchMode
+              }
+            }
+          })
         }
-      })
+      } catch (error) {
+        console.error('Failed to save search history:', error)
+        // Don't fail the entire request if search history save fails
+      }
     }
 
     return NextResponse.json({ 
@@ -344,6 +356,12 @@ export async function POST(req: NextRequest) {
     const zipCode = body.zipCode || undefined
     const address = body.address || undefined
     const state = body.state || undefined
+    
+    // Map bounds parameters
+    const bounds = body.bounds || undefined
+    const latitude = body.latitude || undefined
+    const longitude = body.longitude || undefined
+    const radius = body.radius || undefined
     
     // Property details filters
     const bedsMin = body.bedsMin || undefined
@@ -379,7 +397,7 @@ export async function POST(req: NextRequest) {
     const sortOrder = body.sortOrder === "asc" ? "asc" : "desc"
     
     // Search mode: 'rentcast' for external API, 'database' for local search
-    const searchMode = body.searchMode || "rentcast"
+    const searchMode = body.searchMode || "database"
 
     let results: any[] = []
     let totalCount = 0
@@ -388,12 +406,12 @@ export async function POST(req: NextRequest) {
       // Search in local database with advanced filtering
       const where: any = {}
       
-      if (city) where.city = { contains: city, mode: "insensitive" }
-      if (zipCode) where.zipCode = { contains: zipCode, mode: "insensitive" }
-      if (address) where.address = { contains: address, mode: "insensitive" }
-      if (state) where.state = { contains: state, mode: "insensitive" }
-      if (propertyType) where.propertyType = { contains: propertyType, mode: "insensitive" }
-      if (status) where.status = { contains: status, mode: "insensitive" }
+      if (city) where.city = { contains: city }
+      if (zipCode) where.zipCode = { contains: zipCode }
+      if (address) where.address = { contains: address }
+      if (state) where.state = { contains: state }
+      if (propertyType) where.propertyType = { contains: propertyType }
+      if (status) where.status = { contains: status }
       
       if (bedsMin !== undefined || bedsMax !== undefined) {
         where.beds = {}
@@ -619,34 +637,46 @@ export async function POST(req: NextRequest) {
     // Save search to user's search history if authenticated
     const session = await getServerSession(authOptions)
     if (session?.user?.id) {
-      await prisma.search.create({
-        data: {
-          userId: session.user.id,
-          searchParams: {
-            city,
-            zipCode,
-            address,
-            state,
-            bedsMin,
-            bedsMax,
-            bathsMin,
-            bathsMax,
-            squareFeetMin,
-            squareFeetMax,
-            priceMin,
-            priceMax,
-            propertyType,
-            status,
-            yearBuiltMin,
-            yearBuiltMax,
-            lotSizeMin,
-            lotSizeMax,
-            sortBy,
-            sortOrder,
-            searchMode
-          }
+      try {
+        // Check if user exists in database before creating search
+        const userExists = await prisma.user.findUnique({
+          where: { id: session.user.id }
+        })
+        
+        if (userExists) {
+          await prisma.search.create({
+            data: {
+              userId: session.user.id,
+              searchParams: {
+                city,
+                zipCode,
+                address,
+                state,
+                bedsMin,
+                bedsMax,
+                bathsMin,
+                bathsMax,
+                squareFeetMin,
+                squareFeetMax,
+                priceMin,
+                priceMax,
+                propertyType,
+                status,
+                yearBuiltMin,
+                yearBuiltMax,
+                lotSizeMin,
+                lotSizeMax,
+                sortBy,
+                sortOrder,
+                searchMode
+              }
+            }
+          })
         }
-      })
+      } catch (error) {
+        console.error('Failed to save search history:', error)
+        // Don't fail the entire request if search history save fails
+      }
     }
 
     return NextResponse.json({ 

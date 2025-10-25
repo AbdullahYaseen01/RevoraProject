@@ -26,7 +26,17 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-#.env*.local
+.env*.local
+.env*.backup
+
+# database files
+prisma/dev.db
+prisma/dev.db-journal
+
+# sensitive files
+*.key
+*.pem
+*.p12
 
 # vercel
 .vercel

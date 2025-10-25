@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
           userId: newUser.id,
           legalName: `${firstName} ${lastName}`,
           mailingAddress: "",
-          marketsOfInterest: [],
-          contactPreferences: [],
+          marketsOfInterest: "[]",
+          contactPreferences: "[]",
         }
       })
 
